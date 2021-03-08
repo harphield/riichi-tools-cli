@@ -1,0 +1,9 @@
+[package]
+name = "riichi-tools-cli"
+version = "0.1.0"
+authors = ["harphield <harphield@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+structopt = "0.3"
+riichi-tools-rs = { path = "../riichi-tools-rs" }
