@@ -1,22 +1,14 @@
 use crate::Cmd::{Generate, Shanten, Ukeire};
 use riichi_tools_rs::riichi::hand::Hand;
+use serde_json::json;
 use std::str::FromStr;
 use structopt::StructOpt;
-use serde_json::json;
 
 /// Riichi tools CLI
 #[derive(StructOpt, Debug)]
 #[structopt(name = "riichi-tools-cli")]
 struct Opt {
-    // A flag, true if used in the command line. Note doc comment will
-    // be used for the help message of the flag. The name of the
-    // argument will be, by default, based on the name of the field.
-    /// Activate debug mode
-    #[structopt(short, long)]
-    debug: bool,
-
-    // The number of occurrences of the `v/verbose` flag
-    /// Verbose mode (-v, -vv, -vvv, etc.)
+    /// Verbosity level - changes how much stuff is written out.
     #[structopt(short, long, parse(from_occurrences))]
     verbose: u8,
 
@@ -33,13 +25,17 @@ pub enum Cmd {
     Shanten { hand: String },
     /// Generate a random hand
     Generate {
-        /// Must be complete
+        /// How many hands do we generate?
+        #[structopt(default_value = "1")]
+        number: i32,
+
+        /// Generate complete hands
         #[structopt(short, long)]
         complete: bool,
 
-        /// How many hands do we generate?
-        #[structopt(short, long, default_value = "1")]
-        number: i32,
+        /// Also include shanten
+        #[structopt(short, long)]
+        shanten: bool,
     },
     /// Find ukeire of a hand
     Ukeire { hand: String },
@@ -79,8 +75,8 @@ fn main() {
                         },
                         OutputType::Json => match verbose {
                             0 => {
-                                 println!("{{ {} }}", h.shanten());
-                            },
+                                println!("{{ {} }}", h.shanten());
+                            }
                             _ => {
                                 let json_hand = json!({
                                     "hand": h.to_string(),
@@ -88,7 +84,7 @@ fn main() {
                                 });
                                 println!("{}", json_hand);
                             }
-                        }
+                        },
                     }
                 } else {
                     println!("invalid");
@@ -97,47 +93,60 @@ fn main() {
             Generate {
                 complete,
                 number: count,
+                shanten,
             } => {
                 if complete {
                     match output_type {
                         OutputType::Text => {
                             for _i in 0..count {
-                                println!("{}", Hand::random_complete_hand(true, false));
+                                println!(
+                                    "{}{}",
+                                    Hand::random_complete_hand(true, false),
+                                    if shanten { " -1" } else { "" }
+                                );
                             }
                         }
                         OutputType::Json => {
-                            print!("{{ hands: [");
+                            println!("{{\n\t\"hands\": [");
 
                             for i in 0..count {
-                                print!(
-                                    "\"{}\"{} ",
+                                println!(
+                                    "\t\t[\n\t\t\t\"hand\": \"{}\"{}\n\t\t]{}",
                                     Hand::random_complete_hand(true, false),
+                                    if shanten { format!(",\n\t\t\t\"shanten\": {}", -1) } else { String::from("") },
                                     if i < count - 1 { "," } else { "" }
                                 );
                             }
 
-                            println!("] }}");
+                            println!("\t]\n}}");
                         }
                     }
                 } else {
                     match output_type {
                         OutputType::Text => {
                             for _i in 0..count {
-                                println!("{}", Hand::random_hand());
+                                let mut hand = Hand::random_hand();
+                                println!(
+                                    "{}{}",
+                                    hand.to_string(),
+                                    if shanten { format!(" {}", hand.shanten()) } else { String::from("") }
+                                );
                             }
                         }
                         OutputType::Json => {
-                            print!("{{ hands: [");
+                            println!("{{\n\t\"hands\": [");
 
                             for i in 0..count {
-                                print!(
-                                    "\"{}\"{} ",
-                                    Hand::random_hand(),
+                                let mut hand = Hand::random_hand();
+                                println!(
+                                    "\t\t{{\n\t\t\t\"hand\": \"{}\"{}\n\t\t}}{}",
+                                    hand.to_string(),
+                                    if shanten { format!(",\n\t\t\t\"shanten\": {}", hand.shanten()) } else { String::from("") },
                                     if i < count - 1 { "," } else { "" }
                                 );
                             }
 
-                            println!("] }}");
+                            println!("\t]\n}}");
                         }
                     }
                 }
