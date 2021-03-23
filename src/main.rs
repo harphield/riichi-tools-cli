@@ -3,17 +3,19 @@ use riichi_tools_rs::riichi::hand::Hand;
 use riichi_tools_rs::riichi::table::Table;
 use serde_json::{json, Map};
 use std::str::FromStr;
+use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
 /// Riichi tools CLI
 #[derive(StructOpt, Debug)]
-#[structopt(name = "riichi-tools-cli")]
-struct Opt {
+#[structopt(name = "riichi-tools-cli", global_settings = &[AppSettings::ColoredHelp, AppSettings::ArgRequiredElseHelp])]
+struct RiichiToolsCLI {
     /// Verbosity level - changes how much stuff is written out.
     #[structopt(short, long, parse(from_occurrences))]
     verbose: u8,
 
-    #[structopt(short, long, default_value = "text")]
+    /// `text` or `json`.
+    #[structopt(short, long, default_value="text")]
     output_type: OutputType,
 
     #[structopt(subcommand)]
@@ -28,7 +30,7 @@ pub enum Cmd {
     Generate {
         /// How many hands do we generate?
         #[structopt(default_value = "1")]
-        number: i32,
+        number: u32,
 
         /// Generate complete hands
         #[structopt(short, long)]
@@ -40,7 +42,7 @@ pub enum Cmd {
     },
     /// Find ukeire of a hand
     Ukeire { hand: String },
-    /// Score information
+    /// Score information for a hand
     Score {
         hand: String,
 
@@ -101,11 +103,11 @@ impl FromStr for OutputType {
 }
 
 fn main() {
-    let opt = Opt::from_args();
-    let verbose = opt.verbose;
-    let output_type = opt.output_type;
+    let app = RiichiToolsCLI::from_args();
+    let verbose = app.verbose;
+    let output_type = app.output_type;
 
-    if let Some(command) = opt.cmd {
+    if let Some(command) = app.cmd {
         match command {
             Shanten { hand } => {
                 if let Ok(mut h) = Hand::from_text(&hand[..], true) {
