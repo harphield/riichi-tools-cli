@@ -9,12 +9,11 @@ A command line tool for riichi mahjong shenanigans.
 ### FLAGS:
 `-h, --help`       Prints help information
 \
+`-j, --json`       Output in json instead of random text
+\
 `-V, --version`    Prints version information
 \
 `-v, --verbose`    Verbosity level - changes how much stuff is written out
-
-### OPTIONS:
-`-o, --output-type <output-type>`   `text` or `json`. Default `text`
 
 ### SUBCOMMANDS:
 #### generate

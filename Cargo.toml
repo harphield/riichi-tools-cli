@@ -1,8 +1,18 @@
 [package]
 name = "riichi-tools-cli"
 version = "0.1.0"
-authors = ["harphield <harphield@gmail.com>"]
+authors = ["harphield <harphield@protonmail.com>"]
 edition = "2018"
+license = "MIT"
+description = "Riichi Mahjong tools for the terminal"
+homepage = "https://riichi.harphield.com/tools/"
+repository = "https://github.com/harphield/riichi-tools-cli"
+readme = "README.md"
+keywords = ["riichi", "mahjong", "cli"]
+exclude = [
+    ".github",
+    ".gitignore",
+]
 
 [dependencies]
 structopt = "0.3"

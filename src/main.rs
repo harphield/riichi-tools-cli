@@ -2,7 +2,6 @@ use crate::Cmd::{Generate, Score, Shanten, Ukeire};
 use riichi_tools_rs::riichi::hand::Hand;
 use riichi_tools_rs::riichi::table::Table;
 use serde_json::{json, Map};
-use std::str::FromStr;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
@@ -14,9 +13,9 @@ struct RiichiToolsCLI {
     #[structopt(short, long, parse(from_occurrences))]
     verbose: u8,
 
-    /// `text` or `json`.
-    #[structopt(short, long, default_value="text")]
-    output_type: OutputType,
+    /// Output in json instead of random text
+    #[structopt(short, long)]
+    json: bool,
 
     #[structopt(subcommand)]
     cmd: Option<Cmd>,
@@ -90,22 +89,14 @@ pub enum OutputType {
     Json,
 }
 
-impl FromStr for OutputType {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, String> {
-        match s {
-            "text" => Ok(OutputType::Text),
-            "json" => Ok(OutputType::Json),
-            _ => Err("Wrong output type".to_string()),
-        }
-    }
-}
-
 fn main() {
     let app = RiichiToolsCLI::from_args();
     let verbose = app.verbose;
-    let output_type = app.output_type;
+    let output_type = if app.json {
+        OutputType::Json
+    } else {
+        OutputType::Text
+    };
 
     if let Some(command) = app.cmd {
         match command {
@@ -150,22 +141,26 @@ fn main() {
                             }
                         }
                         OutputType::Json => {
-                            println!("{{\n\t\"hands\": [");
+                            println!("{{\n  \"hands\": [");
 
                             for i in 0..count {
-                                println!(
-                                    "\t\t[\n\t\t\t\"hand\": \"{}\"{}\n\t\t]{}",
-                                    Hand::random_complete_hand(true, false),
-                                    if shanten {
-                                        format!(",\n\t\t\t\"shanten\": {}", -1)
-                                    } else {
-                                        String::from("")
-                                    },
-                                    if i < count - 1 { "," } else { "" }
-                                );
+                                if shanten {
+                                    println!(
+                                        "    [\n      \"hand\": \"{}\"{}\n    ]{}",
+                                        Hand::random_complete_hand(true, false),
+                                        format!(",\n      \"shanten\": {}", -1),
+                                        if i < count - 1 { "," } else { "" }
+                                    );
+                                } else {
+                                    println!(
+                                        "    \"{}\"{}",
+                                        Hand::random_complete_hand(true, false),
+                                        if i < count - 1 { "," } else { "" }
+                                    );
+                                }
                             }
 
-                            println!("\t]\n}}");
+                            println!("  ]\n}}");
                         }
                     }
                 } else {
@@ -185,23 +180,27 @@ fn main() {
                             }
                         }
                         OutputType::Json => {
-                            println!("{{\n\t\"hands\": [");
+                            println!("{{\n  \"hands\": [");
 
                             for i in 0..count {
                                 let mut hand = Hand::random_hand();
-                                println!(
-                                    "\t\t{{\n\t\t\t\"hand\": \"{}\"{}\n\t\t}}{}",
-                                    hand.to_string(),
-                                    if shanten {
-                                        format!(",\n\t\t\t\"shanten\": {}", hand.shanten())
-                                    } else {
-                                        String::from("")
-                                    },
-                                    if i < count - 1 { "," } else { "" }
-                                );
+                                if shanten {
+                                    println!(
+                                        "    [\n      \"hand\": \"{}\"{}\n    ]{}",
+                                        hand.to_string(),
+                                        format!(",\n      \"shanten\": {}", hand.shanten()),
+                                        if i < count - 1 { "," } else { "" }
+                                    );
+                                } else {
+                                    println!(
+                                        "    \"{}\"{}",
+                                        hand,
+                                        if i < count - 1 { "," } else { "" }
+                                    );
+                                }
                             }
 
-                            println!("\t]\n}}");
+                            println!("  ]\n}}");
                         }
                     }
                 }
@@ -288,7 +287,7 @@ fn main() {
                             0 => {}
                             _ => match output_type {
                                 OutputType::Text => print!("{};", h),
-                                OutputType::Json => println!("\t\"hand\": \"{}\",", h),
+                                OutputType::Json => println!("  \"hand\": \"{}\",", h),
                             },
                         }
 
@@ -296,7 +295,7 @@ fn main() {
                             match output_type {
                                 OutputType::Text => print!("{};", score.total_points()),
                                 OutputType::Json => {
-                                    println!("\t\"points\": {},", score.total_points())
+                                    println!("  \"points\": {},", score.total_points())
                                 }
                             }
                         }
@@ -305,7 +304,7 @@ fn main() {
                             match output_type {
                                 OutputType::Text => print!("{};{};", score.han, score.fu),
                                 OutputType::Json => {
-                                    println!("\t\"han\": {},\n\t\"fu\": {},", score.han, score.fu)
+                                    println!("  \"han\": {},\n  \"fu\": {},", score.han, score.fu)
                                 }
                             }
                         }
@@ -327,11 +326,11 @@ fn main() {
                                     }
                                 }
                                 OutputType::Json => {
-                                    println!("\t\"yaku\": [");
+                                    println!("  \"yaku\": [");
 
                                     for y in yakus.iter() {
                                         println!(
-                                            "\t\t\"{}\"{}",
+                                            "    \"{}\"{}",
                                             y.get_name(),
                                             if i < count - 1 { "," } else { "" }
                                         );
@@ -339,7 +338,7 @@ fn main() {
                                         i += 1;
                                     }
 
-                                    println!("\t]");
+                                    println!("  ]");
                                 }
                             }
                         }
