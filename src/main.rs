@@ -1,6 +1,7 @@
-use crate::Cmd::{Generate, Shanten, Ukeire};
+use crate::Cmd::{Generate, Score, Shanten, Ukeire};
 use riichi_tools_rs::riichi::hand::Hand;
-use serde_json::json;
+use riichi_tools_rs::riichi::table::Table;
+use serde_json::{json, Map};
 use std::str::FromStr;
 use structopt::StructOpt;
 
@@ -39,6 +40,46 @@ pub enum Cmd {
     },
     /// Find ukeire of a hand
     Ukeire { hand: String },
+    /// Score information
+    Score {
+        hand: String,
+
+        /// Show hand points
+        #[structopt(short, long)]
+        points: bool,
+
+        /// Show han and fu
+        #[structopt(short, long)]
+        han_fu: bool,
+
+        /// Show yaku names
+        #[structopt(short, long)]
+        yaku: bool,
+
+        /// Is the hand in riichi?
+        #[structopt(short, long)]
+        riichi: bool,
+
+        /// Did I selfdraw the hand?
+        #[structopt(short, long)]
+        tsumo: bool,
+
+        /// My wind.
+        /// e = east
+        /// s = south
+        /// w = west
+        /// n = north
+        #[structopt(short, long, default_value = "e")]
+        my_wind: char,
+
+        /// Prevalent wind.
+        /// e = east
+        /// s = south
+        /// w = west
+        /// n = north
+        #[structopt(short, long, default_value = "e")]
+        wind: char,
+    },
 }
 
 #[derive(Debug)]
@@ -113,7 +154,11 @@ fn main() {
                                 println!(
                                     "\t\t[\n\t\t\t\"hand\": \"{}\"{}\n\t\t]{}",
                                     Hand::random_complete_hand(true, false),
-                                    if shanten { format!(",\n\t\t\t\"shanten\": {}", -1) } else { String::from("") },
+                                    if shanten {
+                                        format!(",\n\t\t\t\"shanten\": {}", -1)
+                                    } else {
+                                        String::from("")
+                                    },
                                     if i < count - 1 { "," } else { "" }
                                 );
                             }
@@ -129,7 +174,11 @@ fn main() {
                                 println!(
                                     "{}{}",
                                     hand.to_string(),
-                                    if shanten { format!(" {}", hand.shanten()) } else { String::from("") }
+                                    if shanten {
+                                        format!(" {}", hand.shanten())
+                                    } else {
+                                        String::from("")
+                                    }
                                 );
                             }
                         }
@@ -141,7 +190,11 @@ fn main() {
                                 println!(
                                     "\t\t{{\n\t\t\t\"hand\": \"{}\"{}\n\t\t}}{}",
                                     hand.to_string(),
-                                    if shanten { format!(",\n\t\t\t\"shanten\": {}", hand.shanten()) } else { String::from("") },
+                                    if shanten {
+                                        format!(",\n\t\t\t\"shanten\": {}", hand.shanten())
+                                    } else {
+                                        String::from("")
+                                    },
                                     if i < count - 1 { "," } else { "" }
                                 );
                             }
@@ -175,6 +228,124 @@ fn main() {
                         }
                         OutputType::Json => {
                             println!("{}", serde_json::to_string(&ukeire).unwrap());
+                        }
+                    }
+                } else {
+                    println!("invalid");
+                }
+            }
+            Score {
+                hand,
+                points,
+                han_fu,
+                yaku,
+                riichi,
+                tsumo,
+                my_wind,
+                wind,
+            } => {
+                if let Ok(mut h) = Hand::from_text(&hand[..], true) {
+                    if h.shanten() >= 0 {
+                        println!("not complete");
+                    } else if !points && !han_fu && !yaku {
+                        println!("Set at least one score parameter (points, han_fu or yaku)");
+                    } else {
+                        let mut table = Table::from_map(&Map::new()).unwrap();
+                        table.set_my_hand(h.clone());
+                        if riichi {
+                            table.set_my_riichi(true);
+                        }
+
+                        if tsumo {
+                            table.set_my_tsumo(true);
+                        }
+
+                        match my_wind {
+                            'e' => table.set_my_seat_wind(1),
+                            's' => table.set_my_seat_wind(2),
+                            'w' => table.set_my_seat_wind(3),
+                            'n' => table.set_my_seat_wind(4),
+                            _ => panic!("Wrong wind - use e,s,w,n"),
+                        }
+
+                        match wind {
+                            'e' => table.set_prevalent_wind(1),
+                            's' => table.set_prevalent_wind(2),
+                            'w' => table.set_prevalent_wind(3),
+                            'n' => table.set_prevalent_wind(4),
+                            _ => panic!("Wrong wind - use e,s,w,n"),
+                        }
+
+                        let (yakus, score) = table.yaku().unwrap();
+
+                        if let OutputType::Json = output_type {
+                            println!("{{");
+                        }
+
+                        match verbose {
+                            0 => {}
+                            _ => match output_type {
+                                OutputType::Text => print!("{};", h),
+                                OutputType::Json => println!("\t\"hand\": \"{}\",", h),
+                            },
+                        }
+
+                        if points {
+                            match output_type {
+                                OutputType::Text => print!("{};", score.total_points()),
+                                OutputType::Json => {
+                                    println!("\t\"points\": {},", score.total_points())
+                                }
+                            }
+                        }
+
+                        if han_fu {
+                            match output_type {
+                                OutputType::Text => print!("{};{};", score.han, score.fu),
+                                OutputType::Json => {
+                                    println!("\t\"han\": {},\n\t\"fu\": {},", score.han, score.fu)
+                                }
+                            }
+                        }
+
+                        if yaku {
+                            let count = yakus.len();
+                            let mut i = 0;
+
+                            match output_type {
+                                OutputType::Text => {
+                                    for y in yakus.iter() {
+                                        print!(
+                                            "\"{}\"{}",
+                                            y.get_name(),
+                                            if i < count - 1 { "," } else { "" }
+                                        );
+
+                                        i += 1;
+                                    }
+                                }
+                                OutputType::Json => {
+                                    println!("\t\"yaku\": [");
+
+                                    for y in yakus.iter() {
+                                        println!(
+                                            "\t\t\"{}\"{}",
+                                            y.get_name(),
+                                            if i < count - 1 { "," } else { "" }
+                                        );
+
+                                        i += 1;
+                                    }
+
+                                    println!("\t]");
+                                }
+                            }
+                        }
+
+                        if let OutputType::Json = output_type {
+                            println!("}}");
+                        } else {
+                            println!();
                         }
                     }
                 } else {

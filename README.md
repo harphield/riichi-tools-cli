@@ -19,7 +19,7 @@ A command line tool for riichi mahjong shenanigans.
 ### SUBCOMMANDS:
 #### generate
 `riichi-tools-cli generate [FLAGS] [number]` Generate a random hand.
-\
+
 FLAGS:
 \
 `-c, --complete` Generate complete hands
@@ -31,3 +31,18 @@ FLAGS:
 
 #### ukeire
 `riichi-tools-cli ukeire <hand>` Find ukeire of a hand
+
+#### score
+`riichi-tools-cli score [FLAGS] [OPTIONS] <hand>` Score information for a hand
+
+FLAGS:
+\
+`-h, --han-fu`     Show han and fu\
+`-p, --points`     Show hand points\
+`-r, --riichi`     Is the hand in riichi?\
+`-t, --tsumo`      Did I selfdraw the hand?\
+`-y, --yaku`       Show yaku names
+
+OPTIONS:\
+`-m, --my-wind <my-wind>`    My wind. e = east s = south w = west n = north [default: e]\
+`-w, --wind <wind>`          Prevalent wind. e = east s = south w = west n = north [default: e]
