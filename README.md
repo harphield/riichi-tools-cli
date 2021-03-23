@@ -1,5 +1,7 @@
 # riichi-tools-cli
 
+![Build Status](https://github.com/harphield/riichi-tools-cli/workflows/Build,%20test%20and%20Clippy/badge.svg)
+
 A command line tool for riichi mahjong shenanigans.
 
 ## Usage
