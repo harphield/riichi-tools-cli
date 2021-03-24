@@ -4,6 +4,7 @@ use riichi_tools_rs::riichi::table::Table;
 use serde_json::{json, Map};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
+use riichi_tools_rs::riichi::rules::{Rules, GameLength};
 
 /// Riichi tools CLI
 #[derive(StructOpt, Debug)]
@@ -167,7 +168,11 @@ fn main() {
                     match output_type {
                         OutputType::Text => {
                             for _i in 0..count {
-                                let mut hand = Hand::random_hand();
+                                let mut hand = Hand::random_hand(Some(&Rules {
+                                    game_length: GameLength::Tonpuusen,
+                                    aka_ari: true,
+                                    kuitan_ari: false
+                                }));
                                 println!(
                                     "{}{}",
                                     hand.to_string(),
@@ -183,7 +188,11 @@ fn main() {
                             println!("{{\n  \"hands\": [");
 
                             for i in 0..count {
-                                let mut hand = Hand::random_hand();
+                                let mut hand = Hand::random_hand(Some(&Rules {
+                                    game_length: GameLength::Tonpuusen,
+                                    aka_ari: true,
+                                    kuitan_ari: false
+                                }));
                                 if shanten {
                                     println!(
                                         "    [\n      \"hand\": \"{}\"{}\n    ]{}",
