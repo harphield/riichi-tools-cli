@@ -14,22 +14,26 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: riichi-tools-cli
-            asset_name: riichi-tools-cli-${GITHUB_REF/refs\/tags\//}-linux-amd64
+            asset_name: riichi-tools-cli
+            extension: ""
           - os: windows-latest
             artifact_name: riichi-tools-cli.exe
-            asset_name: riichi-tools-cli-${GITHUB_REF/refs\/tags\//}-windows-amd64.exe
+            asset_name: riichi-tools-cli
+            extension: ".exe"
           - os: macos-latest
             artifact_name: riichi-tools-cli
-            asset_name: riichi-tools-cli-${GITHUB_REF/refs\/tags\//}-macos-amd64
-
+            asset_name: riichi-tools-cli
+            extension: ""
     steps:
       - uses: actions/checkout@v2
       - name: Build
         run: cargo build --release --locked
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/release/${{ matrix.artifact_name }}
-          asset_name: ${{ matrix.asset_name }}
+          asset_name: ${{ matrix.asset_name }}-${{ steps.tagName.outputs.tag }}${{ matrix.extension }}
           tag: ${{ github.ref }}
