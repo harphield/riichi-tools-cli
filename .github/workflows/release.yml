@@ -11,39 +11,25 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        name: [
-            linux,
-            windows,
-            macos
-        ]
-
         include:
-          - name: linux
-            os: ubuntu-latest
-            artifact_name: target/release/riichi-tools-cli
-            asset_name: riichi-tools-cli-linux
-          - name: windows
-            os: windows-latest
-            artifact_name: target/release/riichi-tools-cli.exe
-            asset_name: riichi-tools-cli-windows
-          - name: macos
-            os: macos-latest
-            artifact_name: target/release/riichi-tools-cli
-            asset_name: riichi-tools-cli-macos
+          - os: ubuntu-latest
+            artifact_name: riichi-tools-cli
+            asset_name: riichi-tools-cli-linux-amd64
+          - os: windows-latest
+            artifact_name: riichi-tools-cli.exe
+            asset_name: riichi-tools-cli-windows-amd64
+          - os: macos-latest
+            artifact_name: riichi-tools-cli
+            asset_name: riichi-tools-cli-macos-amd64
 
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-
+      - uses: actions/checkout@v2
       - name: Build
         run: cargo build --release --locked
-
       - name: Upload binaries to release
-        uses: actions/upload-artifact@v2
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: ${{ matrix.asset_name }}
-          path: ${{ matrix.artifact_name }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/${{ matrix.artifact_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
