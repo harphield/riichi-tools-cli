@@ -1,6 +1,8 @@
 # riichi-tools-cli
 
 ![Build Status](https://github.com/harphield/riichi-tools-cli/workflows/Build,%20test%20and%20Clippy/badge.svg)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/harphield/riichi-tools-cli)
+[![License](https://img.shields.io/github/license/harphield/riichi-tools-cli)](https://github.com/harphield/riichi-tools-cli/blob/master/LICENSE)
 
 A command line tool for riichi mahjong shenanigans.
 
@@ -19,7 +21,7 @@ A command line tool for riichi mahjong shenanigans.
 
 ### SUBCOMMANDS:
 #### generate
-`riichi-tools-cli generate [FLAGS] [number]` Generate a random hand.
+`riichi-tools-cli generate [FLAGS] [number]` Generate a random starting hand.
 
 FLAGS:
 \
