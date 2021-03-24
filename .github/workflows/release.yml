@@ -14,13 +14,13 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: riichi-tools-cli
-            asset_name: riichi-tools-cli-linux-amd64
+            asset_name: riichi-tools-cli-${{ github.ref }}-linux-amd64
           - os: windows-latest
             artifact_name: riichi-tools-cli.exe
-            asset_name: riichi-tools-cli-windows-amd64
+            asset_name: riichi-tools-cli-${{ github.ref }}-windows-amd64.exe
           - os: macos-latest
             artifact_name: riichi-tools-cli
-            asset_name: riichi-tools-cli-macos-amd64
+            asset_name: riichi-tools-cli-${{ github.ref }}-macos-amd64
 
     steps:
       - uses: actions/checkout@v2
