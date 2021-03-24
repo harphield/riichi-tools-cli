@@ -1,10 +1,10 @@
 use crate::Cmd::{Generate, Score, Shanten, Ukeire};
 use riichi_tools_rs::riichi::hand::Hand;
+use riichi_tools_rs::riichi::rules::{GameLength, Rules};
 use riichi_tools_rs::riichi::table::Table;
 use serde_json::{json, Map};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
-use riichi_tools_rs::riichi::rules::{Rules, GameLength};
 
 /// Riichi tools CLI
 #[derive(StructOpt, Debug)]
@@ -171,7 +171,7 @@ fn main() {
                                 let mut hand = Hand::random_hand(Some(&Rules {
                                     game_length: GameLength::Tonpuusen,
                                     aka_ari: true,
-                                    kuitan_ari: false
+                                    kuitan_ari: false,
                                 }));
                                 println!(
                                     "{}{}",
@@ -191,7 +191,7 @@ fn main() {
                                 let mut hand = Hand::random_hand(Some(&Rules {
                                     game_length: GameLength::Tonpuusen,
                                     aka_ari: true,
-                                    kuitan_ari: false
+                                    kuitan_ari: false,
                                 }));
                                 if shanten {
                                     println!(
