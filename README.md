@@ -1,6 +1,7 @@
 # riichi-tools-cli
 
 ![Build Status](https://github.com/harphield/riichi-tools-cli/workflows/Build,%20test%20and%20Clippy/badge.svg)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/harphield/riichi-tools-cli?include_prereleases)](https://github.com/harphield/riichi-tools-cli/releases)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/harphield/riichi-tools-cli)
 [![License](https://img.shields.io/github/license/harphield/riichi-tools-cli)](https://github.com/harphield/riichi-tools-cli/blob/master/LICENSE)
 
