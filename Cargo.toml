@@ -1,6 +1,6 @@
 [package]
 name = "riichi-tools-cli"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["harphield <harphield@protonmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -16,5 +16,5 @@ exclude = [
 
 [dependencies]
 structopt = "0.3"
-riichi-tools-rs = "0.0.68"
+riichi-tools-rs = { version = "0.0.69", features = ["fast_shanten"] }
 serde_json = "1.0.64"

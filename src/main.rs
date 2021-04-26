@@ -9,7 +9,7 @@ use structopt::StructOpt;
 /// Riichi tools CLI
 #[derive(StructOpt, Debug)]
 #[structopt(name = "riichi-tools-cli", global_settings = &[AppSettings::ColoredHelp, AppSettings::ArgRequiredElseHelp])]
-struct RiichiToolsCLI {
+struct RiichiToolsCli {
     /// Verbosity level - changes how much stuff is written out.
     #[structopt(short, long, parse(from_occurrences))]
     verbose: u8,
@@ -91,7 +91,7 @@ pub enum OutputType {
 }
 
 fn main() {
-    let app = RiichiToolsCLI::from_args();
+    let app = RiichiToolsCli::from_args();
     let verbose = app.verbose;
     let output_type = if app.json {
         OutputType::Json
